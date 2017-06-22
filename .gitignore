@@ -1,4 +1,5 @@
-#don't include very large files
+#ignore very large files
 *.abf
 *.mat
+#ignore backup files
 *.bak
