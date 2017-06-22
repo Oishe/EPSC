@@ -1,3 +1,4 @@
 #don't include very large files
 *.abf
 *.mat
+*.bak
