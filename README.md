@@ -6,30 +6,30 @@ This is a collection of scripts and functions written in Matlab to analyze EPSC'
 	- age
 	- gender
 	- cell[]:
-		- filename			'Cell#/''.abf'
-		- si 				 'sample interval microseconds'
-		- fs				  'sample frequency Hz'
-		- startSample 		'-1'= do not include cell
-		- stopSample 	 	'-1'= record to end
-		- lpf 				'local field potential'
-		- patch 			  'raw clamp-patch data'
-		- pathFilter		  'filtered patch data'
-		- patchStd			'value of 1-std of patch'
-		- patchAvg			'mean value'
-		- lpfStd			  'valuev of 1-std of lpf'
-		- lpfAvg			  'mean value'
-		- events[]:		   'detected EPSC events'
+		- filename                   'Cell#/''.abf'
+		- si                         'sample interval microseconds'
+		- fs                         'sample frequency Hz'
+		- startSample                '-1'= do not include cell
+		- stopSample                 '-1'= record to end
+		- lpf                        'local field potential'
+		- patch                      'raw clamp-patch data'
+		- pathFilter                 'filtered patch data'
+		- patchStd                   'value of 1-std of patch'
+		- patchAvg                   'mean value'
+		- lpfStd                     'valuev of 1-std of lpf'
+		- lpfAvg                     'mean value'
+		- events[]:                  'detected EPSC events'
 			- startSample
 			- stopSample
 			- patch
 			- lpf
-			- patchMovStd	  'moving std from raw patch'
+			- patchMovStd            'moving std from raw patch'
 			- patchStd
 			- lpfStd
-			- baseline 		'average baseline of event'
-			- amplitude		'max amplitude from baseline'
-			- width			'width of the event'
-			- tau			  'RC time constant 63% from amplitude'
+			- baseline               'average baseline of event'
+			- amplitude              'max amplitude from baseline'
+			- width                  'width of the event'
+			- tau                    'RC time constant 63% from amplitude'
 ---
 ## Cell info.txt
 1. Start time in mins || '-1' = do not include cell
