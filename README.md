@@ -1,6 +1,7 @@
 # Excitatory Post-Synaptic Currents (EPSCs)
 This is a collection of scripts and functions written in Matlab to analyze EPSC's
 
+---
 ## Data Structure
 	Data:
 	- age
@@ -23,18 +24,19 @@ This is a collection of scripts and functions written in Matlab to analyze EPSC'
 			- stopSample
 			- patch
 			- lpf
-			- patchMovStd            'moving std from raw patch'
+			- patchMovStd         'moving std from raw patch'
 			- patchStd
 			- lpfStd
-			- baseline               'average baseline of event'
-			- amplitude              'max amplitude from baseline'
-			- width                  'width of the event'
-			- tau                    'RC time constant 63% from amplitude'
+			- baseline            'average baseline of event'
+			- amplitude           'max amplitude from baseline'
+			- width               'width of the event'
+			- tau                 'RC time constant 63% from amplitude'
 ---
 ## Cell info.txt
 1. Start time in mins || '-1' = do not include cell
 2. Stop time in mins || '-1' = record to end
 
+---
 ## Functions and Scripts
 
 ### extractData.m
