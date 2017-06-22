@@ -1,5 +1,5 @@
 # Excitatory Post-Synaptic Currents (EPSCs)
-This is a collection of scripts and functions written in Matlab to analyze EPSC's
+This is a collection of scripts and functions written in Matlab to analyze EPSC's. The `Data.mat` file and individual `.abf` files are not included due to size constraints.
 
 ---
 ## Data Structure
@@ -30,14 +30,25 @@ This is a collection of scripts and functions written in Matlab to analyze EPSC'
 			- baseline            'average baseline of event'
 			- amplitude           'max amplitude from baseline'
 			- width               'width of the event'
-			- tau                 'RC time constant 63% from amplitude'
+			- rise                'rise-time'
+			- decay               'decay-time'
+			- area                'area spanned by event'
 ---
 ## Cell info.txt
-1. Start time in mins || '-1' = do not include cell
-2. Stop time in mins || '-1' = record to end
+1. Start time in mins | '-1' = do not include cell
+2. Stop time in mins | '-1' = record to end
 
 ---
 ## Functions and Scripts
+##### Completed Functions
+- [x] extractData
+- [x] filterAllData
+	- [x] filterData
+- [x] collectAllEvents
+	- [x] collectEvents
+	- [ ] displayEvents
+- [ ] analyzeEvents
+	- [ ] statsEvents
 
 ### extractData.m
 1. Creates `Data` structure
