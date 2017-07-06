@@ -39,6 +39,6 @@ for K = (idx+1): length(dirinfo) % don't include '.', '..', and '.git'
         end
     end
 end
-save Data.mat Data
 sprintf('finished extractData')
 clearvars -except Data
+save Data.mat Data -v7.3

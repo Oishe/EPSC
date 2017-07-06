@@ -20,4 +20,4 @@ end
 %% Saving takes time too
 sprintf('finished filteringAllData')
 clearvars -except Data
-save Data.mat Data
+save Data.mat Data -v7.3
