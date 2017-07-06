@@ -3,3 +3,7 @@
 *.mat
 #ignore backup files
 *.bak
+#ignore text file instructions
+*.txt
+#ignore pictures in files
+*.jpg
