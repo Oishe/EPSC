@@ -25,6 +25,7 @@ This is a collection of scripts and functions written in Matlab to analyze EPSC'
 			- patch
 			- lpf
 			- patchMovStd         'moving std from raw patch'
+			- patchSmooth
 			- patchStd
 			- lpfStd
 			- baseline            'average baseline of event'
@@ -117,12 +118,15 @@ void analyzeEvents(Data.cell[])
 
 ###### Stores
 cell[].events[]:
+- patchSmooth
 - patchStd
 - lpfStd
 - baseline
 - amplitude
 - width
-- tau
+- rise
+- decay
+- area
 
 ##### displayEvents.m
 - Displays all collected events in a cell patch

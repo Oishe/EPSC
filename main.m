@@ -1,5 +1,6 @@
 %% Scripts to call in order
 extractData;
 filterAllData;
-% Data.mat.bak backup from this point
+% DataFiltered.mat.bak backup from this point
 collectAllEvents;
+% DataCollectedEvents.mat.bak from this point
