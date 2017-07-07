@@ -1,6 +1,7 @@
 load Data.mat
 smoothWindow = 10;
 baselineWindow = 150;
+averageWindow = 500;
 for cellNum = 1:length(Data.cell)
     if (Data.cell(cellNum).startTimeSample == -1)
         continue
@@ -35,7 +36,7 @@ for cellNum = 1:length(Data.cell)
 %         statsEvents(Data.cell(cellNum).events, 'amplitude')
         %% Average sample
         eventStarts = [Data.cell(cellNum).events.startSample];
-        eventEnds = eventStarts + 500;
+        eventEnds = eventStarts + averageWindow;
         baselines = transpose([Data.cell(cellNum).events.baseline]);
         sumEvents = Data.cell(cellNum).patch(eventStarts(1):eventEnds(1)) - baselines(1);
         
