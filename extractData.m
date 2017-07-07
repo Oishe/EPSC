@@ -12,12 +12,12 @@ for K = (idx+1): length(dirinfo) % don't include '.', '..', and '.git'
         infoFile = fopen(sprintf('%s.txt', fileNameNoExt),'r');
         fileName = sprintf('%s.abf', fileNameNoExt);
         times = fscanf(infoFile, '%f\n%f');
-        Data.cell(K-idx).filename = fileName;
-        if(times(1)>0)
+        Data.cell(K-idx).fileName = fileName;
+        if(times(1)>=0)
             [d,si,h]=abfload(fileName);
             Data.cell(K-idx).si = si;
             Fs = 1/(si*1e-6);
-            Data.cell(K-idx).fs = Fs;
+            Data.cell(K-idx).Fs = Fs;
             if (times(1) == 0)
                 StartTimeSample = 1;
             else
@@ -40,5 +40,6 @@ for K = (idx+1): length(dirinfo) % don't include '.', '..', and '.git'
     end
 end
 sprintf('finished extractData')
+sprintf('saving Data.m ...')
 clearvars -except Data
 save Data.mat Data -v7.3
