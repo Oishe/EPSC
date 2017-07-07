@@ -1,8 +1,8 @@
 
-function [events] = collectEvents(lpf, patch, patchFilter, fs, helperPlot)
+function [events] = collectEvents(lpf, patch, patchFilter, Fs, helperPlot)
     %% Moving Standard Deviation on patchFilter
     % 25000/25 * 40 us = 40ms window
-    stdWindow = floor(fs/25);
+    stdWindow = floor(Fs/25);
     stdPatchFilter = movstd(patchFilter,[stdWindow 0]);
     %% Thresholding
     threshold = 4;
