@@ -45,8 +45,8 @@ for K = 1: (length(dirinfo) - idx)
                 patch = d(startSample:stopSample,2);
                 lpf = d(startSample:stopSample,1);
                 % Considering not storing the actual patch
-                DataCell{K+L-1}.patch = patch;
-                DataCell{K+L-1}.lpf = lpf;
+%                 DataCell{K+L-1}.patch = patch;
+%                 DataCell{K+L-1}.lpf = lpf;
 		    end
         end
     end
