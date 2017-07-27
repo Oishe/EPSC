@@ -1,4 +1,4 @@
-load Data.mat
+    load Data.mat
 for i = 1:length(Data.cell)
     if(Data.cell(i).startTimeSample == -1)
         continue
