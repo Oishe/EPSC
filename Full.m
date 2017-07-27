@@ -16,8 +16,8 @@ D = designfilt('bandpassfir', 'StopbandFrequency1', 5,...
 %% Extract ABF files
 dirinfo = dir();		% list of all the directories in main
 dirinfo(~[dirinfo.isdir]) = [];  % remove non-directories
-% don't include '.', '..', and '.git'
-dirIdx = 3; % number of directories to remove during search
+% don't include '+profile', '.', '..', and '.git'
+dirIdx = 4; % number of directories to remove during search
 numOfFolders = (length(dirinfo) - dirIdx);
 DataCell{numOfFolders} = {};		% Pre-allocate DataCell - idx positions
 disp('----------Extracting----------');
