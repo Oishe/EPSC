@@ -16,8 +16,8 @@ D = designfilt('bandpassfir', 'StopbandFrequency1', 5,...
 %% Extract ABF files
 dirinfo = dir();		% list of all the directories in main
 dirinfo(~[dirinfo.isdir]) = [];  % remove non-directories
-% don't include '+serial','.', '..', and '.git'
-dirIdx = 4; % number of directories to remove during search
+% don't include '.', '..', and '.git'
+dirIdx = 3; % number of directories to remove during search
 numOfFolders = (length(dirinfo) - dirIdx);
 DataCell{numOfFolders} = {};		% Pre-allocate DataCell - idx positions
 disp('----------Extracting----------');
@@ -60,7 +60,7 @@ for cellIdx = 1:numOfFolders
             % DataCell{idxCell}.patch = patch;
             % DataCell{idxCell}.lpf = lpf;
             disp('----------Filtering----------');
-            disp(fullFileNameNoExt);
+%             disp(fullFileNameNoExt);
             decimateValue = 25;
             newFs = floor(Fs/decimateValue);
             DataCell{cellIdx}.newFs = newFs;
@@ -97,33 +97,51 @@ for cellIdx = 1:numOfFolders
             DataCell{cellIdx}.events{numOfEvents}.startSample = 0;
             DataCell{cellIdx}.events{numOfEvents}.stopSample = 0;
             % finding a baseline and summing the events
-            baselineWindow = 150;
+            baselineWindow = 60;
             averageWindow = 600;
             DataCell{cellIdx}.baselineWindow=baselineWindow;
             DataCell{cellIdx}.averageWindow=averageWindow;
             % preallocate
             averageEvent = zeros(averageWindow,1);
-%             figure;
-%             hold on;
+            peakval = zeros(numOfEvents,1);
+            GRAPH = false;
+            if GRAPH; figure; hold on; end;
             for eventIdx = 1:numOfEvents
-                eventStartSample = floor(idx(diffIdx(eventIdx)+1));
+                eventStartSample = floor(idx(diffIdx(eventIdx)+1))*25;
                 DataCell{cellIdx}.events{eventIdx}.eventStartSample = eventStartSample;
-                eventStopSample = floor(idx(diffIdx(eventIdx+1)));
+                eventStopSample = floor(idx(diffIdx(eventIdx+1)))*25;
                 DataCell{cellIdx}.events{eventIdx}.eventStopSample = eventStopSample;
                 baseline = mean(patch(eventStartSample:(eventStartSample+baselineWindow-1)));
                 DataCell{cellIdx}.events{eventIdx}.baseline = baseline;
-                oneEvent = smooth(patch(eventStartSample:(eventStartSample+averageWindow-1)),20)-baseline;
-                averageEvent = averageEvent+ oneEvent;
-%                 plot(oneEvent);
+                % smooth
+                % oneEvent = smooth(patch(eventStartSample:(eventStartSample+averageWindow-1)),20)-baseline;
+                % original
+                oneEvent = patch(eventStartSample:(eventStartSample+averageWindow-1))-baseline;
+                averageEvent = averageEvent + oneEvent;
+                if GRAPH; plot(oneEvent); end;
+                peakval(eventIdx) = min(oneEvent);
+                
             end
-%             hold off
+            if GRAPH; hold off; end;
+            rejects=find(peakval<(mean(peakval)-3*std(peakval)));
+            if length(rejects)>1
+                for rejectsIdx = 1:length(rejects)
+                    rejectStartSample = DataCell{cellIdx}.events{rejects(rejectsIdx)}.eventStartSample;
+                    averageEvent = averageEvent - patch(rejectStartSample:(rejectStartSample+averageWindow-1))+DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline;
+                end
+            else
+                rejectStartSample = DataCell{cellIdx}.events{rejects}.eventStartSample;
+                averageEvent = averageEvent - patch(rejectStartSample:(rejectStartSample+averageWindow-1))+DataCell{cellIdx}.events{rejects}.baseline;
+            end
+            averageEvent = averageEvent./numOfEvents;
+            DataCell{cellIdx}.averageEvent = averageEvent;
 
-            DataCell{cellIdx}.averageEvent = averageEvent./numOfEvents;
-
-%             figure
-%             plot(averageEvent);
-%             title('Average Event');
-            disp('----------Done Cell----------');
+            if GRAPH
+                figure
+                plot(averageEvent);
+                title('Average Event');
+                disp('----------Done Cell----------');
+            end
         end
     end
 end
