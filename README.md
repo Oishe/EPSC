@@ -1,45 +1,77 @@
 # Excitatory Post-Synaptic Currents (EPSCs)
-This is a collection of scripts and functions written in Matlab to analyze EPSC's. The `Data.mat` file and individual `.abf` files are not included due to size constraints.
+This repository contains Matlab scripts for detecting EPSCs from patched cell
+data.  
+It generates a `DataCell.mat` file which contains all the parsed and processed
+data.  
+The individual `.abf` files that hold the raw data are not included due to size constraints.  
+The following steps have to be taken to function properly:
+1. The data from `.abf` files must be stored in individual sub-folders
+2. Inside the sub-folder must also exist a `.txt` file with the same name as
+   the `.abf` file
 
----
-## Data Structure
-	Data:
-	- age
-	- gender
-	- cell[]:
-		- filename                   'Cell#/''.abf'
-		- si                         'sample interval microseconds'
-		- fs                         'sample frequency Hz'
-		- startSample                '-1'= do not include cell
-		- stopSample                 '-1'= record to end
-		- lpf                        'local field potential'
-		- patch                      'raw clamp-patch data'
-		- pathFilter                 'filtered patch data'
-		- patchStd                   'value of 1-std of patch'
-		- patchAvg                   'mean value'
-		- lpfStd                     'valuev of 1-std of lpf'
-		- lpfAvg                     'mean value'
-		- events[]:                  'detected EPSC events'
-			- startSample
-			- stopSample
-			- patch
-			- lpf
-			- patchMovStd         'moving std from raw patch'
-			- patchSmooth
-			- patchStd
-			- lpfStd
-			- baseline            'average baseline of event'
-			- amplitude           'max amplitude from baseline'
-			- width               'width of the event'
-			- rise                'rise-time'
-			- decay               'decay-time'
-			- area                'area spanned by event'
----
-## Cell info.txt
-1. Start time in mins | '-1' = do not include cell
-2. Stop time in mins | '-1' = record to end
+## DataCell.mat Structure
 
----
+| **DataCell:**   |        |  description               |
+| ----------- | ------ | -------------------------- |
+| filename    |        | 'sub-folder/*.abf'         |
+| Type        |        | 'K/W'                      |
+| Age         |        | (days)                     |
+| Gender      |        | 'M/F'                      |
+| startSample |        | '-1' = do not include cell |
+| stopSample  |        | '-1'= record to end |
+| Fs          |        | sample frequency (Hz)      |
+| decimateValue |        | down sample times |
+| newFs |        | new fequency (Hz) |
+| stdWindow|        | Moving std window (ms) |
+| stdThreshold|        | threshold for detecting EPSC|
+| spreadTime |        | mask spread time (ms) |
+| numOfEvents |        | detected events |
+| baselineWindow |        | points to find baseline|
+| averageWindow |        | points to average events|
+| averageEvent |        | average over all Events |
+| **events:** |        | |
+| | isRejected | if discarded as noise |
+| | eventStartSample | sample in internal patch |
+| | eventStopSample | sample in internal patch |
+| | baseline       | for zero-ing |
+| |        | |
+| |        | |
+| |        | |
+| |        | |
+| |        | |
+
+- amplitude           'max amplitude from baseline'
+- width               'width of the event'
+- rise                'rise-time'
+- decay               'decay-time'
+- area                'area spanned by event'
+
+## Cell Info '*.txt'
+Keep this file inside the sub-folder with the `.abf` file.  
+Make sure to give this file the same name as the `.abf` file.  
+The file structure:
+> StartTime (mins)  
+> StopTime (mins)  
+> Type  
+> Age (days)  
+> Gender  
+Special Characters:
+- StartTime
+  - '-1' = do not include cell
+  - '0' = start from the beginning
+- StopTime
+  - '-1' = record to the end
+- Type
+  - 'K' = Knock out
+  - 'W' = Wild
+  - '?' = Unknown
+- Age
+  - '-1' = Unknown
+- Gender
+  - 'M' = Male
+  - 'F' = Female
+  - '?' = Unknown
+
 ## Functions and Scripts
 ##### Completed Functions
 - [x] extractData
