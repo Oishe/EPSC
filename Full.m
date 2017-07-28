@@ -42,7 +42,7 @@ for cellIdx = 1:numOfFolders
         DataCell{cellIdx}.fileName = ABFName;
         % include file or not
         if(MinuteTimes(1)<0)
-            DataCell{cellIdx}.startTimeSample = -1;
+            DataCell{cellIdx}.startSample = -1;
         else
             %% load the ABF file
             [d,si,h]=abfload(ABFName);
@@ -70,6 +70,7 @@ for cellIdx = 1:numOfFolders
             % disp(fullFileNameNoExt);
             decimateValue = 25;
             newFs = floor(Fs/decimateValue);
+            DataCell{cellIdx}.decimateValue = decimateValue;
             DataCell{cellIdx}.newFs = newFs;
             patchDecimateFirst = decimate(patch,5);
             patchDecimate = decimate(patchDecimateFirst,5);
@@ -84,22 +85,26 @@ for cellIdx = 1:numOfFolders
             %% Moving Standard Deviation on patchFilter
             % window duration = 40ms
             stdWindow = floor(40e-3*newFs);
+            DataCell{cellIdx}.stdWindow = stdWindow;
             stdPatchFilter = movstd(patchFilter,[stdWindow 0],1,'Endpoints', 'shrink');
             meanPatchFilter = movmean(patchFilter,[stdWindow 0],'Endpoints', 'shrink');
             %% Thresholding
             stdThreshold = 4;
+            DataCell{cellIdx}.stdThreshold = stdThreshold;
             detectThreshold = abs(patchFilter-meanPatchFilter)>(stdThreshold*stdPatchFilter);
             % detectThreshold = stdPatchFilter>stdThreshold;
             %% Mask
             % 10* 1ms = 10ms
-            points = 10; % spreading over points
-            mask = conv(double(detectThreshold), ones(points,1), 'same');
+            spreadPoints = 10; % spreading over points
+            DataCell{cellIdx}.spreadTime = spreadPoints*1000/newFs;
+            mask = conv(double(detectThreshold), ones(spreadPoints,1), 'same');
             %% Finding events + Average
             % finding where the non-zero idx numbers jump more than by 1
             % the discontinuity is a new event
             idx = find(mask>0);
             diffIdx = find(diff(idx)>1);
             numOfEvents = length(diffIdx)-1;
+            DataCell{cellIdx}.numOfEvents = numOfEvents;
             % preallocate
             DataCell{cellIdx}.events{numOfEvents}.startSample = 0;
             DataCell{cellIdx}.events{numOfEvents}.stopSample = 0;
