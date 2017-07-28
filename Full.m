@@ -31,11 +31,14 @@ for cellIdx = 1:numOfFolders
     	DataCell{cellIdx}.startSample = -1;
     else
         fullFileNameNoExt = sprintf('%s/%s', thisdir,subdirinfo.name(1:end-4));
-        % open .txt
-        infoFile = fopen(sprintf('%s.txt', fullFileNameNoExt),'r');
         ABFName = sprintf('%s.abf', fullFileNameNoExt);
-        % values in .txt
-        MinuteTimes = fscanf(infoFile, '%f\n%f');
+        % open .txt and parse
+        infoFile = fopen(sprintf('%s.txt', fullFileNameNoExt),'r');
+        MinuteTimes = [str2double(fgetl(infoFile)); str2double(fgetl(infoFile))];
+        Type = fgetl(infoFile);
+        Age = str2double(fgetl(infoFile));
+        Gender = fgetl(infoFile);
+        fclose(infoFile);
         DataCell{cellIdx}.fileName = ABFName;
         % include file or not
         if(MinuteTimes(1)<0)
@@ -53,14 +56,18 @@ for cellIdx = 1:numOfFolders
             isToEndMinuteTimes = MinuteTimes(2) <0;
             stopSample = (isToEndMinuteTimes)*(length(d)) + (~isToEndMinuteTimes)*(floor(MinuteTimes(2)*60*Fs));
             DataCell{cellIdx}.stopSample = stopSample;
+            % include Cell information
+            DataCell{cellIdx}.Type = Type;
+            DataCell{cellIdx}.Age = Age;
+            DataCell{cellIdx}.Gender = Gender;
             %% Local Patch and LPF Filtering
             patch = d(startSample:stopSample,2);
-            lpf = d(startSample:stopSample,1);
-            % Considering not storing the actual patch
+            lfp = d(startSample:stopSample,1);
+            % Not storing patch or lfp
             % DataCell{idxCell}.patch = patch;
-            % DataCell{idxCell}.lpf = lpf;
+            % DataCell{idxCell}.lfp = lfp;
             disp('----------Filtering----------');
-%             disp(fullFileNameNoExt);
+            % disp(fullFileNameNoExt);
             decimateValue = 25;
             newFs = floor(Fs/decimateValue);
             DataCell{cellIdx}.newFs = newFs;
