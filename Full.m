@@ -30,6 +30,7 @@ for cellIdx = 1:numOfFolders
     if(isempty(subdirinfo))
     	DataCell{cellIdx}.startSample = -1;
     else
+        %% Parsing the *.txt
         fullFileNameNoExt = sprintf('%s/%s', thisdir,subdirinfo.name(1:end-4));
         ABFName = sprintf('%s.abf', fullFileNameNoExt);
         % open .txt and parse
@@ -98,13 +99,12 @@ for cellIdx = 1:numOfFolders
             spreadPoints = 10; % spreading over points
             DataCell{cellIdx}.spreadTime = spreadPoints*1000/newFs;
             mask = conv(double(detectThreshold), ones(spreadPoints,1), 'same');
-            %% Finding events + Average
+            %% Finding events
             % finding where the non-zero idx numbers jump more than by 1
             % the discontinuity is a new event
             idx = find(mask>0);
             diffIdx = find(diff(idx)>1);
             numOfEvents = length(diffIdx)-1;
-            DataCell{cellIdx}.numOfEvents = numOfEvents;
             % preallocate
             DataCell{cellIdx}.events{numOfEvents}.startSample = 0;
             DataCell{cellIdx}.events{numOfEvents}.stopSample = 0;
@@ -114,9 +114,10 @@ for cellIdx = 1:numOfFolders
             DataCell{cellIdx}.baselineWindow=baselineWindow;
             DataCell{cellIdx}.averageWindow=averageWindow;
             % preallocate
-            averageEvent = zeros(averageWindow,1);
-            peakval = zeros(numOfEvents,1);
-            GRAPH = false;
+            sumEvents = zeros(averageWindow,1);
+            amplitudes = zeros(numOfEvents,1);
+            %% Analyzing events + Averaging
+            GRAPH = true;
             if GRAPH; figure; hold on; end;
             for eventIdx = 1:numOfEvents
                 eventStartSample = floor(idx(diffIdx(eventIdx)+1))*25;
@@ -125,35 +126,36 @@ for cellIdx = 1:numOfFolders
                 DataCell{cellIdx}.events{eventIdx}.eventStopSample = eventStopSample;
                 baseline = mean(patch(eventStartSample:(eventStartSample+baselineWindow-1)));
                 DataCell{cellIdx}.events{eventIdx}.baseline = baseline;
-                % smooth
-                % oneEvent = smooth(patch(eventStartSample:(eventStartSample+averageWindow-1)),20)-baseline;
-                % original
                 oneEvent = patch(eventStartSample:(eventStartSample+averageWindow-1))-baseline;
-                averageEvent = averageEvent + oneEvent;
+                sumEvents = sumEvents + oneEvent;
                 if GRAPH; plot(oneEvent); end;
-                peakval(eventIdx) = min(oneEvent);
+                % amplitude
+                amplitudes(eventIdx) = min(oneEvent);
+                DataCell{cellIdx}.events{eventIdx}.amplitude = amplitudes(eventIdx);
                 
             end
             if GRAPH; hold off; end;
-            rejects=find(peakval<(mean(peakval)-3*std(peakval)));
-            if length(rejects)>1
-                for rejectsIdx = 1:length(rejects)
-                    rejectStartSample = DataCell{cellIdx}.events{rejects(rejectsIdx)}.eventStartSample;
-                    averageEvent = averageEvent - patch(rejectStartSample:(rejectStartSample+averageWindow-1))+DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline;
-                end
-            else
-                rejectStartSample = DataCell{cellIdx}.events{rejects}.eventStartSample;
-                averageEvent = averageEvent - patch(rejectStartSample:(rejectStartSample+averageWindow-1))+DataCell{cellIdx}.events{rejects}.baseline;
+            %% Rejecting Noise + Updating Average
+            % getting rid of events larger than 3std
+            rejects=find(amplitudes<(mean(amplitudes)-3*std(amplitudes)));
+            for rejectsIdx = 1 : length(rejects)
+                rejectStartSample = DataCell{cellIdx}.events{rejects(rejectsIdx)}.eventStartSample;
+                rejectStopSample = rejectStartSample + averageWindow - 1;
+                sumEvents = sumEvents - patch(rejectStartSample:rejectStopSample) + DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline;
             end
-            averageEvent = averageEvent./numOfEvents;
+            DataCell{cellIdx}.events(rejects) = [];
+            amplitudes(rejects) = [];
+            numOfEvents = numOfEvents - length(rejects);
+            DataCell{cellIdx}.numOfEvents = numOfEvents;
+            averageEvent = sumEvents./numOfEvents;
             DataCell{cellIdx}.averageEvent = averageEvent;
-
+            DataCell{cellIdx}.amplitudes = amplitudes;
             if GRAPH
-                figure
+                figure;
                 plot(averageEvent);
                 title('Average Event');
-                disp('----------Done Cell----------');
             end
+            disp('----------Done Cell----------');
         end
     end
 end
@@ -162,16 +164,9 @@ end
 %% Save Data Structure
 % include serialize save
 saveDataCell = true;
-saveSerialDataCell = false;
 if saveDataCell
     save ('DataCell.mat', 'DataCell', '-v7.3');
 end
-% Doesn't work yet
-if saveSerialDataCell
-    bytes = serialData.hlp_serialize(DataCell);
-    save ('SerialDataCell.mat', 'bytes', '-v7.3');   
-end
-
 
 
 
