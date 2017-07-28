@@ -90,7 +90,7 @@ for cellIdx = 1:numOfFolders
             stdPatchFilter = movstd(patchFilter,[stdWindow 0],1,'Endpoints', 'shrink');
             meanPatchFilter = movmean(patchFilter,[stdWindow 0],'Endpoints', 'shrink');
             %% Thresholding
-            stdThreshold = 4;
+            stdThreshold = 3;
             DataCell{cellIdx}.stdThreshold = stdThreshold;
             detectThreshold = abs(patchFilter-meanPatchFilter)>(stdThreshold*stdPatchFilter);
             % detectThreshold = stdPatchFilter>stdThreshold;
@@ -155,6 +155,8 @@ for cellIdx = 1:numOfFolders
                 plot(averageEvent);
                 title('Average Event');
             end
+            disp('NumberOfCells=');
+            disp(numOfEvents);
             disp('----------Done Cell----------');
         end
     end
