@@ -90,7 +90,7 @@ for cellIdx = 1:numOfFolders
             stdPatchFilter = movstd(patchFilter,[stdWindow 0],1,'Endpoints', 'shrink');
             meanPatchFilter = movmean(patchFilter,[stdWindow 0],'Endpoints', 'shrink');
             %% Thresholding
-            stdThreshold = 3;
+            stdThreshold = 3.8;
             DataCell{cellIdx}.stdThreshold = stdThreshold;
             detectThreshold = abs(patchFilter-meanPatchFilter)>(stdThreshold*stdPatchFilter);
             % detectThreshold = stdPatchFilter>stdThreshold;
