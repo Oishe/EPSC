@@ -6,9 +6,9 @@ includeCell = ones(numel(DataCell),1);
 includeCell(2) = 0;
 includeCell(9) = 0;
 %Picrotoxin
-includeCell(4) = 0;
-includeCell(6) = 0;
-includeCell(9) = 0;
+% includeCell(4) = 0;
+% includeCell(6) = 0;
+% includeCell(9) = 0;
 %% graph together
 figure;
 hold on;
