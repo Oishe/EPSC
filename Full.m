@@ -116,6 +116,7 @@ for cellIdx = 1:numOfFolders
             % preallocate
             sumEvents = zeros(averageWindow,1);
             amplitudes = zeros(numOfEvents,1);
+            decays = zeros(numOfEvents,1);
             %% Analyzing events + Averaging
             GRAPH = true;
             if GRAPH; figure; hold on; end;
@@ -125,14 +126,24 @@ for cellIdx = 1:numOfFolders
                 eventStopSample = floor(idx(diffIdx(eventIdx+1)))*25;
                 DataCell{cellIdx}.events{eventIdx}.eventStopSample = eventStopSample;
                 baseline = mean(patch(eventStartSample:(eventStartSample+baselineWindow-1)));
+                % baseline
                 DataCell{cellIdx}.events{eventIdx}.baseline = baseline;
+                % oneEvent adjusted
                 oneEvent = patch(eventStartSample:(eventStartSample+averageWindow-1))-baseline;
                 sumEvents = sumEvents + oneEvent;
                 if GRAPH; plot(oneEvent); end;
                 % amplitude
-                amplitudes(eventIdx) = min(oneEvent);
+                smoothOneEvent = smooth(oneEvent,5);
+                amplitudes(eventIdx) = min(smoothOneEvent);
                 DataCell{cellIdx}.events{eventIdx}.amplitude = amplitudes(eventIdx);
-                
+                % RC 0.67 decay from amplitude
+                minPoint = mean(find(smoothOneEvent==amplitudes(eventIdx)));
+                decay67Point = find(smoothOneEvent<(0.67*amplitudes(eventIdx)), 1, 'last');
+                decay67 = decay67Point - minPoint;
+%                 disp(decay67);
+                decays(eventIdx) = decay67;
+                DataCell{cellIdx}.events{eventIdx}.decays = decays(eventIdx);
+%                 disp(' ');
             end
             if GRAPH; hold off; end;
             %% Rejecting Noise + Updating Average
@@ -145,6 +156,7 @@ for cellIdx = 1:numOfFolders
             end
             DataCell{cellIdx}.events(rejects) = [];
             amplitudes(rejects) = [];
+            decays(rejects) = [];
             numOfEvents = numOfEvents - length(rejects);
             DataCell{cellIdx}.numOfEvents = numOfEvents;
             averageEvent = sumEvents./numOfEvents;
@@ -154,10 +166,20 @@ for cellIdx = 1:numOfFolders
                 figure;
                 plot(averageEvent);
                 title('Average Event');
+                figure;
+                subplot(2,1,1);
+                histogram(amplitudes)
+                title('amplitudes');
+                subplot(2,1,2);
+                histogram(decays);
+                title('decays');
+                figure;
+                scatter(decays,amplitudes);
             end
             disp('NumberOfCells=');
             disp(numOfEvents);
             disp('----------Done Cell----------');
+            close all;
         end
     end
 end
