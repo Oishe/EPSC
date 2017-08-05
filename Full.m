@@ -117,9 +117,9 @@ for cellIdx = 1:numOfFolders
             sumEvents = zeros(averageWindow,1);
             amplitudes = zeros(numOfEvents,1);
             decays = zeros(numOfEvents,1);
-            %% Analyzing events + Averaging
+            %% Analyzing events + Averaging + Graphing
             GRAPH = true;
-            if GRAPH; figure; hold on; end;
+            if GRAPH; figure; movegui('northwest'); hold on; end;
             for eventIdx = 1:numOfEvents
                 eventStartSample = floor(idx(diffIdx(eventIdx)+1))*25;
                 DataCell{cellIdx}.events{eventIdx}.eventStartSample = eventStartSample;
@@ -154,27 +154,34 @@ for cellIdx = 1:numOfFolders
                 rejectStopSample = rejectStartSample + averageWindow - 1;
                 sumEvents = sumEvents - patch(rejectStartSample:rejectStopSample) + DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline;
             end
+            % deleteing rejecteed events from arrays
             DataCell{cellIdx}.events(rejects) = [];
             amplitudes(rejects) = [];
             decays(rejects) = [];
             numOfEvents = numOfEvents - length(rejects);
-            DataCell{cellIdx}.numOfEvents = numOfEvents;
             averageEvent = sumEvents./numOfEvents;
+            % storing cell specific information
+            DataCell{cellIdx}.decays = decays;
+            DataCell{cellIdx}.numOfEvents = numOfEvents;
             DataCell{cellIdx}.averageEvent = averageEvent;
             DataCell{cellIdx}.amplitudes = amplitudes;
             if GRAPH
                 figure;
                 plot(averageEvent);
                 title('Average Event');
+                movegui('northeast');
                 figure;
-                subplot(2,1,1);
+                movegui('south');
+                subplot(2,2,1);
                 histogram(amplitudes)
                 title('amplitudes');
-                subplot(2,1,2);
+                subplot(2,2,3);
                 histogram(decays);
                 title('decays');
-                figure;
+                subplot(2,2,[2;4])
                 scatter(decays,amplitudes);
+                xlabel('decay');
+                ylabel('amplitude');
             end
             disp('NumberOfCells=');
             disp(numOfEvents);
