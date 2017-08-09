@@ -117,8 +117,9 @@ for cellIdx = 1:numOfFolders
             sumEvents = zeros(averageWindow,1);
             amplitudes = zeros(numOfEvents,1);
             decays = zeros(numOfEvents,1);
+            areas = zeros(numOfEvents,1);
             %% Analyzing events + Averaging + Graphing
-            GRAPH = false;
+            GRAPH = true;
             if GRAPH; figure; movegui('northwest'); hold on; end;
             for eventIdx = 1:numOfEvents
                 eventStartSample = floor(idx(diffIdx(eventIdx)+1))*25;
@@ -144,6 +145,8 @@ for cellIdx = 1:numOfFolders
                 decays(eventIdx) = decay67;
                 DataCell{cellIdx}.events{eventIdx}.decays = decays(eventIdx);
 %                 disp(' ');
+                % Area under event
+                areas(eventIdx) = abs(sum(patch(eventStartSample:eventStopSample)-baseline));
             end
             if GRAPH; hold off; end;
             %% Rejecting Noise + Updating Average
@@ -154,10 +157,11 @@ for cellIdx = 1:numOfFolders
                 rejectStopSample = rejectStartSample + averageWindow - 1;
                 sumEvents = sumEvents - patch(rejectStartSample:rejectStopSample) + DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline;
             end
-            % deleteing rejecteed events from arrays
+            % deleteing rejected events from arrays
             DataCell{cellIdx}.events(rejects) = [];
             amplitudes(rejects) = [];
             decays(rejects) = [];
+            areas(rejects) = [];
             numOfEvents = numOfEvents - length(rejects);
             averageEvent = sumEvents./numOfEvents;
             % storing cell specific information
@@ -165,6 +169,7 @@ for cellIdx = 1:numOfFolders
             DataCell{cellIdx}.numOfEvents = numOfEvents;
             DataCell{cellIdx}.averageEvent = averageEvent;
             DataCell{cellIdx}.amplitudes = amplitudes;
+            DataCell{cellIdx}.areas = areas;
             if GRAPH
                 figure;
                 movegui('northeast');
@@ -172,16 +177,20 @@ for cellIdx = 1:numOfFolders
                 title('Average Event');
                 figure;
                 movegui('south');
-                subplot(2,2,1);
+                subplot(3,3,1);
                 histogram(amplitudes)
                 title('amplitudes');
-                subplot(2,2,3);
+                subplot(3,3,4);
                 histogram(decays);
                 title('decays');
-                subplot(2,2,[2;4])
-                scatter(decays,amplitudes);
+                subplot(3,3,7);
+                histogram(areas);
+                title('areas');
+                subplot(3,3,[2;3;5;6;8;9])
+                scatter3(decays,amplitudes, areas);
                 xlabel('decay');
                 ylabel('amplitude');
+                zlabel('area');
             end
             disp('NumberOfEvents=');
             disp(numOfEvents);
