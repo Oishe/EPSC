@@ -1,49 +1,53 @@
 load DataCell.mat
 numOfCells = numel(DataCell);
 %% Plot trace of each cell
-figure;
+% figures
+traceFig = figure;
+scatterFig = figure;
+fftFig = figure;
+% storing some values Pre-allocation
 meanDecays(numOfCells) = 0;
 meanAmplitudes(numOfCells) = 0;
-meanColors(numOfCells) = 0;
-meanTexts(numOfCells) = 0;
-hold on;
+% Loop through each cell
 for cellIdx = 1:numOfCells
+    % cells to discard
     if (DataCell{cellIdx}.startSample == -1)
         meanDecays(cellIdx) = NaN;
         meanAmplitudes(cellIdx) = NaN;
-        meanColors(cellIdx) = 'k';
-        meanTexts(cellIdx) = cellIdx;
         continue;
     else
+        % decide colour
         if(DataCell{cellIdx}.Type == 'W')
-            meanColors(cellIdx) ='b';
             colour = sprintf('b');
         elseif(DataCell{cellIdx}.Type == 'K')
-            meanColors(cellIdx) = 'r';
             colour = sprintf('r');
         else
-            meanColors(cellIdx) = 'k';
             colour = sprintf('k');
         end
+        % plot the graphs
         meanDecays(cellIdx) = mean(DataCell{cellIdx}.decays);
         meanAmplitudes(cellIdx) = mean(DataCell{cellIdx}.amplitudes);
-        meanTexts(cellIdx) = cellIdx;
-        %single trace
+        % single trace
+        figure(traceFig);
+        hold on;
         plot(DataCell{cellIdx}.averageEvent, colour);
         text(find(DataCell{cellIdx}.averageEvent==min(DataCell{cellIdx}.averageEvent)), min(DataCell{cellIdx}.averageEvent), num2str(cellIdx));
+        hold off;
+        % scatter plot
+        figure(scatterFig);
+        hold on;
+        scatter(meanDecays(cellIdx), meanAmplitudes(cellIdx), 30, colour);
+        text(meanDecays(cellIdx), meanAmplitudes(cellIdx), num2str(cellIdx));
+        hold off;
+        % frequency plot
+        figure(fftFig)
+        hold on;
+        plot(DataCell{cellIdx}.fLabel, DataCell{cellIdx}.averageFFT, colour);
+        text(DataCell{cellIdx}.fLabel(end), DataCell{cellIdx}.averageFFT(end), num2str(cellIdx));
+        hold off;
     end
 end
-hold off
 %% Plot median points
-meanTexts(isnan(meanDecays)) = [];
-meanColors(isnan(meanDecays)) = [];
-meanAmplitudes(isnan(meanDecays)) = [];
-meanDecays(isnan(meanDecays)) = [];
-figure;
-hold on
-scatter(meanDecays, meanAmplitudes, 30, meanColors);
-for textIdx = 1:numel(meanTexts)
-    text(meanDecays(textIdx), meanAmplitudes(textIdx),num2str(meanTexts(textIdx)));
-end
+figure(scatterFig);
 xlabel('decay');
 ylabel('amplitude');
