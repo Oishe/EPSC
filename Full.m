@@ -51,11 +51,13 @@ for cellIdx = 1:numOfFolders
             DataCell{cellIdx}.Fs = Fs;
             % Parse start time
             isZeroStartMinuteTimes = MinuteTimes(1) == 0;
-            startSample = isZeroStartMinuteTimes + (~isZeroStartMinuteTimes)*floor(MinuteTimes(1)*60*Fs);
+            startSample = isZeroStartMinuteTimes...
+                + (~isZeroStartMinuteTimes)*floor(MinuteTimes(1)*60*Fs);
             DataCell{cellIdx}.startSample = startSample;
             % Parse stop time
             isToEndMinuteTimes = MinuteTimes(2) <0;
-            stopSample = (isToEndMinuteTimes)*(length(d)) + (~isToEndMinuteTimes)*(floor(MinuteTimes(2)*60*Fs));
+            stopSample = (isToEndMinuteTimes)*(length(d))...
+                + (~isToEndMinuteTimes)*(floor(MinuteTimes(2)*60*Fs));
             DataCell{cellIdx}.stopSample = stopSample;
             % include Cell information
             DataCell{cellIdx}.Type = Type;
@@ -114,12 +116,14 @@ for cellIdx = 1:numOfFolders
             DataCell{cellIdx}.baselineWindow=baselineWindow;
             DataCell{cellIdx}.averageWindow=averageWindow;
             % preallocate
+            L = 2^9; % length of FFT
             sumEvents = zeros(averageWindow,1);
+            sumFFT = zeros(2^9,1);
             amplitudes = zeros(numOfEvents,1);
             decays = zeros(numOfEvents,1);
             areas = zeros(numOfEvents,1);
             %% Analyzing events + Averaging + Graphing
-            GRAPH = true;
+            GRAPH = false;
             if GRAPH; figure; movegui('northwest'); hold on; end;
             for eventIdx = 1:numOfEvents
                 eventStartSample = floor(idx(diffIdx(eventIdx)+1))*25;
@@ -132,6 +136,8 @@ for cellIdx = 1:numOfFolders
                 % oneEvent adjusted
                 oneEvent = patch(eventStartSample:(eventStartSample+averageWindow-1))-baseline;
                 sumEvents = sumEvents + oneEvent;
+                % FFT events
+                sumFFT = sumFFT + abs(fft(oneEvent,L));
                 if GRAPH; plot(oneEvent); end;
                 % amplitude
                 smoothOneEvent = smooth(oneEvent,5);
@@ -155,7 +161,10 @@ for cellIdx = 1:numOfFolders
             for rejectsIdx = 1 : length(rejects)
                 rejectStartSample = DataCell{cellIdx}.events{rejects(rejectsIdx)}.eventStartSample;
                 rejectStopSample = rejectStartSample + averageWindow - 1;
-                sumEvents = sumEvents - patch(rejectStartSample:rejectStopSample) + DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline;
+                sumEvents = sumEvents - patch(rejectStartSample:rejectStopSample)...
+                    + DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline;
+                sumFFT = sumFFT - abs(fft((patch(rejectStartSample:rejectStopSample)...
+                    - DataCell{cellIdx}.events{rejects(rejectsIdx)}.baseline),L));
             end
             % deleteing rejected events from arrays
             DataCell{cellIdx}.events(rejects) = [];
@@ -164,19 +173,32 @@ for cellIdx = 1:numOfFolders
             areas(rejects) = [];
             numOfEvents = numOfEvents - length(rejects);
             averageEvent = sumEvents./numOfEvents;
+            averageFFT = sumFFT/L/numOfEvents;
+            averageFFT = averageFFT(1:L/2+1);
             % storing cell specific information
             DataCell{cellIdx}.decays = decays;
             DataCell{cellIdx}.numOfEvents = numOfEvents;
             DataCell{cellIdx}.averageEvent = averageEvent;
+            DataCell{cellIdx}.averageFFT = averageFFT;
             DataCell{cellIdx}.amplitudes = amplitudes;
             DataCell{cellIdx}.areas = areas;
+            f = Fs*(0:(L/2))/L;
+            DataCell{cellIdx}.fLabel = f;
             if GRAPH
+                pause(1)
                 figure;
                 movegui('northeast');
                 plot(averageEvent);
                 title('Average Event');
+                pause(1)
                 figure;
-                movegui('south');
+                movegui('southwest');
+                plot(f,averageFFT);
+                xlabel('f(Hz)');
+                title('Average FFT');
+                pause(1)
+                figure;
+                movegui('southeast');
                 subplot(3,3,1);
                 histogram(amplitudes)
                 title('amplitudes');
