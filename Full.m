@@ -118,7 +118,7 @@ for cellIdx = 1:numOfFolders
             amplitudes = zeros(numOfEvents,1);
             decays = zeros(numOfEvents,1);
             %% Analyzing events + Averaging + Graphing
-            GRAPH = true;
+            GRAPH = false;
             if GRAPH; figure; movegui('northwest'); hold on; end;
             for eventIdx = 1:numOfEvents
                 eventStartSample = floor(idx(diffIdx(eventIdx)+1))*25;
@@ -167,9 +167,9 @@ for cellIdx = 1:numOfFolders
             DataCell{cellIdx}.amplitudes = amplitudes;
             if GRAPH
                 figure;
+                movegui('northeast');
                 plot(averageEvent);
                 title('Average Event');
-                movegui('northeast');
                 figure;
                 movegui('south');
                 subplot(2,2,1);
@@ -183,7 +183,7 @@ for cellIdx = 1:numOfFolders
                 xlabel('decay');
                 ylabel('amplitude');
             end
-            disp('NumberOfCells=');
+            disp('NumberOfEvents=');
             disp(numOfEvents);
             disp('----------Done Cell----------');
             close all;
