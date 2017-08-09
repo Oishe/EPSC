@@ -157,7 +157,8 @@ for cellIdx = 1:numOfFolders
             if GRAPH; hold off; end;
             %% Rejecting Noise + Updating Average
             % getting rid of events larger than 3std
-            rejects=find(amplitudes<(mean(amplitudes)-3*std(amplitudes)));
+            rejects = find(amplitudes<(mean(amplitudes)-2*std(amplitudes)));
+%             rejects = [rejects find(amplitudes < 500) || decays > 400 );
             for rejectsIdx = 1 : length(rejects)
                 rejectStartSample = DataCell{cellIdx}.events{rejects(rejectsIdx)}.eventStartSample;
                 rejectStopSample = rejectStartSample + averageWindow - 1;
